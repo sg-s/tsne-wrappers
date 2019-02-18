@@ -1,8 +1,8 @@
-function ydata = tsne_d(D, labels, no_dims, perplexity)
-%TSNE_D Performs symmetric t-SNE on the pairwise Euclidean distance matrix D
+function ydata = fit_d(D, labels, no_dims, perplexity)
+%fit_d Performs symmetric t-SNE on the pairwise Euclidean distance matrix D
 %
-%   mappedX = tsne_d(D, labels, no_dims, perplexity)
-%   mappedX = tsne_d(D, labels, initial_solution, perplexity)
+%   mappedX = fit_d(D, labels, no_dims, perplexity)
+%   mappedX = fit_d(D, labels, initial_solution, perplexity)
 %
 % The function performs symmetric t-SNE on the NxN pairwise Euclidean 
 % distance matrix D to construct an embedding with no_dims dimensions 
@@ -35,7 +35,7 @@ P = TSNE.vandermaaten.d2p(D .^ 2, perplexity, 1e-5);      % compute affinities u
 
 % Run t-SNE
 if initial_solution
-    ydata = TSNE.vandermaaten.tsne_p(P, labels, ydata);
+    ydata = TSNE.vandermaaten.fit_p(P, labels, ydata);
 else
-    ydata = TSNE.vandermaaten.tsne_p(P, labels, no_dims);
+    ydata = TSNE.vandermaaten.fit_p(P, labels, no_dims);
 end

@@ -4,7 +4,7 @@
 % this wrapper assumes you have the python wrapper set up
 % and calls that.  
 
-function R = mctsne(Vs,n_iter,perplexity, n_jobs)
+function R = fit(Vs,n_iter,perplexity, n_jobs)
 
 if nargin < 2
 	n_iter = 1000;
@@ -18,7 +18,7 @@ elseif nargin < 4
 end
 
 
-containing_dir = fileparts(which('TSNE.multicore.mctsne'));
+containing_dir = fileparts(which('TSNE.multicore.fit'));
 
 
 save('Vs.mat','Vs','-v7.3')

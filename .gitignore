@@ -3,3 +3,6 @@
 *DS_Store
 *.cache
 *.h5
+*data/
+*ubyte*
+*.gz

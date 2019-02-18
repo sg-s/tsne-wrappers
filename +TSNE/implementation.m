@@ -1,5 +1,5 @@
 classdef implementation
    enumeration
-      internal, vandermaaten, multicore, gberman, fitsne
+      internal, vandermaaten, multicore, berman, fitsne
    end
 end

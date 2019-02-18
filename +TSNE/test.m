@@ -3,7 +3,7 @@
 function test()
 
 % download data if need be
-[imgDataTrain, labelsTrain, imgDataTest, labelsTest] = prepareData;
+[imgDataTrain, labelsTrain, imgDataTest, labelsTest] = TSNE.internal.prepareData;
 
 
 % reshape data
@@ -11,24 +11,54 @@ X = reshape(imgDataTest,28*28,size(imgDataTest,4));
 X = X(:,1:1e3); % only first 1000 points
 labelsTest = double(labelsTest(1:1e3));
 
-figure('outerposition',[300 300 1200 600],'PaperUnits','points','PaperSize',[1200 600]); hold on
-subplot(1,2,1); hold on
-title('MATLAB internal')
+figure('outerposition',[300 300 1200 901],'PaperUnits','points','PaperSize',[1200 901]); hold on
+prettyFig();
 
-% test MATLAB's internal version
+
+
+% compare different implemntations 
+
+
+ax = subplot(2,3,1); hold on
+title(ax, 'MATLAB internal')
 t = TSNE;
 t.implementation = TSNE.implementation.internal;
-t.raw_data = double(X');
+t.raw_data = double(X);
+t.plot(ax,labelsTest);
+axis off
+drawnow
 
-R = t.fit;
+ax = subplot(2,3,2); hold on
+title(ax, 'multicore')
+t = TSNE;
+t.implementation = TSNE.implementation.multicore;
+t.raw_data = double(X);
+t.plot(ax,labelsTest);
+axis off
+drawnow
 
-c = lines;
 
-for i = 1:10
-	plot(R(labelsTest==i,1),R(labelsTest==i,2),'.','Color',c(i,:))
-end
+ax = subplot(2,3,3); hold on
+title(ax, 'van der Maaten')
+t = TSNE;
+t.implementation = TSNE.implementation.vandermaaten;
+t.raw_data = double(X);
+t.plot(ax,labelsTest);
+axis off
+drawnow
+
+ax = subplot(2,3,4); hold on
+title(ax, 'Berman')
+t = TSNE;
+t.implementation = TSNE.implementation.berman;
+t.raw_data = double(X);
+t.plot(ax,labelsTest);
+axis off
+drawnow
 
 
+
+return
 
 
 % test pairwise-distance tsne using synthetic data

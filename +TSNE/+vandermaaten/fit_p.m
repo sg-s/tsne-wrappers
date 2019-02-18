@@ -1,7 +1,7 @@
-function ydata = tsne_p(P, labels, no_dims)
-%TSNE_P Performs symmetric t-SNE on affinity matrix P
+function ydata = fit_p(P, labels, no_dims)
+%fit_p Performs symmetric t-SNE on affinity matrix P
 %
-%   mappedX = tsne_p(P, labels, no_dims)
+%   mappedX = fit_p(P, labels, no_dims)
 %
 % The function performs symmetric t-SNE on pairwise similarity matrix P 
 % to create a low-dimensional map of no_dims dimensions (default = 2).
