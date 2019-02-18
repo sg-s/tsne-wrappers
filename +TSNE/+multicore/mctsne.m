@@ -4,32 +4,22 @@
 % this wrapper assumes you have the python wrapper set up
 % and calls that.  
 
-function R = mctsne(Vs,n_iter,perplexity)
+function R = mctsne(Vs,n_iter,perplexity, n_jobs)
 
 if nargin < 2
 	n_iter = 1000;
 	perplexity = 30;
+	n_jobs = mtools.core.numcores;
 elseif nargin < 3
 	perplexity = 30;
+	n_jobs = mtools.core.numcores;
+elseif nargin < 4
+	n_jobs = mtools.core.numcores;
 end
-
-assert(~any(isnan(Vs(:))),'Input cannot contain NaN values')
-assert(~any(isinf(Vs(:))),'Input cannot contain Inf values')
-
-
-% check cache
-temp.Vs = Vs;
-temp.perplexity = perplexity;
-temp.n_iter = n_iter;
-h = GetMD5(temp,'Array');
 
 
 containing_dir = fileparts(which('TSNE.multicore.mctsne'));
 
-if exist(joinPath(containing_dir,[h '.cache']),'file') == 2
-	load(joinPath(containing_dir,[h '.cache']),'-mat')
-	return
-end
 
 save('Vs.mat','Vs','-v7.3')
 
@@ -48,7 +38,7 @@ if e ~=0
 end
 
 p1 = ['"' containing_dir];
-eval_str =  [p1 filesep 'mctsne.py" ' oval(perplexity) ' ' oval(n_iter)];
+eval_str =  [p1 filesep 'mctsne.py" ' oval(perplexity) ' ' oval(n_iter) ' ' oval(n_jobs)];
 system(eval_str)
 
 % read the solution
@@ -57,5 +47,3 @@ R = h5read('data.h5','/R');
 % clean up
 delete('data.h5')
 delete('Vs.mat')
-
-save(joinPath(containing_dir,[h '.cache']),'R');

@@ -1,3 +1,5 @@
 *.mat
 *sublime-workspace
 *DS_Store
+*.cache
+*.h5
