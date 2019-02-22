@@ -52,6 +52,9 @@ if ~initial_solution
     P = P * 4;                                      % lie about the P-vals to find better local minima
 end
 
+% use frozen random numbers
+RandStream.setGlobalStream(RandStream('mt19937ar','Seed',1984)); 
+
 % Initialize the solution
 if ~initial_solution
     ydata = .0001 * randn(n, no_dims);
