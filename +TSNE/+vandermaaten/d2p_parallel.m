@@ -1,6 +1,8 @@
-function [thisP, thisBeta] = d2p_parallel(logU, Dslice, tol, i)
+function [thisP, thisBeta] = d2p_parallel(desired_entropy, Dslice, tol, i)
 
 % remove the ith element from Dslice
+% we're doing this because this is the easisest way to parallelize this
+% operation (and to avoid D being a broadcast variable)
 Dslice(i) = [];
 
 % Set minimum and maximum values for precision
@@ -12,10 +14,10 @@ thisBeta = 1;
 [H, thisP] = TSNE.vandermaaten.Hbeta(Dslice, thisBeta);
 
 % Evaluate whether the perplexity is within tolerance
-Hdiff = H - logU;
+Hdiff = H - desired_entropy;
 tries = 0;
 while abs(Hdiff) > tol && tries < 50
-    
+
     % If not, increase or decrease precision
     if Hdiff > 0
         betamin = thisBeta;
@@ -35,6 +37,9 @@ while abs(Hdiff) > tol && tries < 50
     
     % Recompute the values
     [H, thisP] = TSNE.vandermaaten.Hbeta(Dslice, thisBeta);
-    Hdiff = H - logU;
+    Hdiff = H - desired_entropy;
     tries = tries + 1;
 end
+
+% if thisP has NaNs, then perplexity is probably too low
+assert(~any(isnan(thisP)),'NaNs appear in P. This probably means that perplexity is too low')

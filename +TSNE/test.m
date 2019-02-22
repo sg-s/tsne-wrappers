@@ -64,7 +64,7 @@ end
 if strcmp(tests_to_run,'all') || strcmp(tests_to_run,'distance_matrix') 
 
 	% use frozen random numbers
-	RandStream.setGlobalStream(RandStream('mt19937ar','Seed',1984)); 
+	%RandStream.setGlobalStream(RandStream('mt19937ar','Seed',1984)); 
 
 	% test pairwise-distance tsne using synthetic data
 	X = [randn(333,1) randn(333,1); 10+randn(333,1) 3+randn(333,1); 6+randn(333,1) 9+randn(333,1)];

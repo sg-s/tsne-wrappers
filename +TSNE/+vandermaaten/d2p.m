@@ -1,5 +1,5 @@
-function [P, beta] = d2p(D, u, tol)
-%D2P Identifies appropriate sigma's to get kk NNs up to some tolerance 
+function [P, beta] = d2p(D, perplexity, tol)
+% D2P Identifies appropriate sigmas to get kk NNs up to some tolerance 
 %
 %   [P, beta] = d2p(D, kk, tol)
 % 
@@ -16,8 +16,8 @@ function [P, beta] = d2p(D, u, tol)
 % Maastricht University
 
     
-if ~exist('u', 'var') || isempty(u)
-    u = 15;
+if ~exist('perplexity', 'var') || isempty(perplexity)
+    perplexity = 15;
 end
 if ~exist('tol', 'var') || isempty(tol)
     tol = 1e-4; 
@@ -28,7 +28,7 @@ n = size(D, 1);                     % number of instances
 P = zeros(n);                    % empty probability matrix
 P_off_diag = zeros(n-1,n);
 beta = ones(n, 1);                  % empty precision vector
-logU = log(u);                      % log of perplexity (= entropy)
+logU = log(perplexity);              % log of perplexity (= entropy)
 
 % Run over all datapoints
 

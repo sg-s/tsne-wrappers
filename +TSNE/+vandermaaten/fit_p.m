@@ -44,6 +44,7 @@ epsilon = 500;                                      % initial learning rate
 min_gain = .01;                                     % minimum gain for delta-bar-delta
 
 % Make sure P-vals are set properly
+assert(~any(isnan(P(:))),'P matrix contains NaNs')
 P(1:n + 1:end) = 0;                                 % set diagonal to zero
 P = 0.5 * (P + P');                                 % symmetrize P-values
 P = max(P ./ sum(P(:)), realmin);                   % make sure P-values sum to one
@@ -62,14 +63,23 @@ end
 y_incs  = zeros(size(ydata));
 gains = ones(size(ydata));
 
+tic; 
+
+disp_iter = unique([ 1 2 3 round(linspace(5,max_iter,20))]);
+
+
 % Run the iterations
-for iter=1:max_iter
+for iter = 1:max_iter
     
     % Compute joint probability that point i and j are neighbors
     sum_ydata = sum(ydata .^ 2, 2);
     num = 1 ./ (1 + bsxfun(@plus, sum_ydata, bsxfun(@plus, sum_ydata', -2 * (ydata * ydata')))); % Student-t distribution
-    num(1:n+1:end) = 0;                                                 % set diagonal to zero
-    Q = max(num ./ sum(num(:)), realmin);                               % normalize to get probabilities
+
+     % set diagonal to zero
+    num(1:n+1:end) = 0;                                                
+
+     % normalize to get probabilities
+    Q = max(num ./ sum(num(:)), realmin);                              
     
     % Compute the gradients (faster implementation)
     L = (P - Q) .* num;
@@ -90,11 +100,19 @@ for iter=1:max_iter
     if iter == stop_lying_iter && ~initial_solution
         P = P ./ 4;
     end
+
+    cost = const - sum(P(:) .* log(Q(:)));
+
     
     % Print out progress
-    if ~rem(iter, 10)
-        cost = const - sum(P(:) .* log(Q(:)));
-        disp(['Iteration ' num2str(iter) ': error is ' num2str(cost)]);
+    if any(disp_iter == iter)
+        t_elapsed = toc;
+        t_total = (t_elapsed/iter)*max_iter;
+        t_rem = t_total - t_elapsed;
+
+        
+
+        disp(['Iteration ' num2str(iter) ': error is ' num2str(cost) ' time remaining: ' num2str(t_rem)]);
     end
     
     % Display scatter plot (maximally first three dimensions)
