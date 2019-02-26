@@ -38,7 +38,7 @@ if e ~=0
 end
 
 p1 = ['"' containing_dir];
-eval_str =  [p1 filesep 'mctsne.py" ' oval(perplexity) ' ' oval(n_iter) ' ' oval(n_jobs)];
+eval_str =  [p1 filesep 'mctsne.py" ' mtools.string.oval(perplexity) ' ' mtools.string.oval(n_iter) ' ' mtools.string.oval(n_jobs)];
 system(eval_str)
 
 % read the solution

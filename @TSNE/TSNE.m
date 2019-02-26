@@ -12,7 +12,7 @@ properties
 	% cache embeddings to immediately recall it next time?
 	use_cache@logical = true
 
-	n_cores@double = mtools.core.numcores;
+	n_cores@double = corelib.numcores;
 
 	n_iter@double = 1e3;
 

@@ -6,7 +6,7 @@ function test(tests_to_run)
 if strcmp(tests_to_run,'all') || strcmp(tests_to_run,'mnist') 
 
 	% download data if need be
-	[imgDataTrain, labelsTrain, imgDataTest, labelsTest] = TSNE.internal.prepareData;
+	[~, ~, imgDataTest, labelsTest] = TSNE.internal.prepareData;
 
 
 	% reshape data
@@ -83,6 +83,6 @@ if strcmp(tests_to_run,'all') || strcmp(tests_to_run,'distance_matrix')
 	plot(R(334:666,1),R(334:666,2),'o')
 	plot(R(667:end,1),R(667:end,2),'o')
 
-	GetMD5(R)
+	mtools.crypto.md5hash(R)
 
 end
