@@ -38,7 +38,7 @@ end
 
 % cache if need be
 if self.use_cache
-	save([cache_dir filesep H '.cache'],'R','-nocompression')
+	save([cache_dir filesep H '.cache'],'R','-nocompression','-v7.3')
 end
 
 
