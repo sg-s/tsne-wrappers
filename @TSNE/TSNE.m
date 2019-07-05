@@ -6,7 +6,7 @@ properties
 	implementation@TSNE.implementation = TSNE.implementation.internal
 	distance_matrix@double
 	raw_data@double
-	num_dims = 2
+	num_dims@double = 2
 	perplexity@double = 30
 
 	% cache embeddings to immediately recall it next time?
@@ -15,6 +15,8 @@ properties
 	n_cores@double = corelib.numcores;
 
 	n_iter@double = 1e3;
+
+	random_seed@double = 1984
 
 end
 
@@ -31,7 +33,7 @@ methods
 		% should be a matrix
 		assert(ismatrix(value),'raw_data should be a matrix')
 
-		% rotate correctily
+		% rotate correctly
 		sz = size(value);
 		if sz(1) > sz(2)
 			value = value';

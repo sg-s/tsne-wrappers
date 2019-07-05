@@ -1,4 +1,4 @@
-function ydata = fit_d(D, labels, no_dims, perplexity)
+function ydata = fit_d(D, labels, no_dims, perplexity, random_seed)
 %fit_d Performs symmetric t-SNE on the pairwise Euclidean distance matrix D
 %
 %   mappedX = fit_d(D, labels, no_dims, perplexity)
@@ -35,7 +35,7 @@ P = TSNE.vandermaaten.d2p(D .^ 2, perplexity, 1e-5);      % compute affinities u
 
 % Run t-SNE
 if initial_solution
-    ydata = TSNE.vandermaaten.fit_p(P, labels, ydata);
+    ydata = TSNE.vandermaaten.fit_p(P, labels, ydata, random_seed);
 else
-    ydata = TSNE.vandermaaten.fit_p(P, labels, no_dims);
+    ydata = TSNE.vandermaaten.fit_p(P, labels, no_dims, random_seed);
 end

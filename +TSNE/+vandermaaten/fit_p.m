@@ -1,4 +1,4 @@
-function ydata = fit_p(P, labels, no_dims)
+function ydata = fit_p(P, labels, no_dims, random_seed)
 %fit_p Performs symmetric t-SNE on affinity matrix P
 %
 %   mappedX = fit_p(P, labels, no_dims)
@@ -54,7 +54,7 @@ if ~initial_solution
 end
 
 % use frozen random numbers
-RandStream.setGlobalStream(RandStream('mt19937ar','Seed',1984)); 
+RandStream.setGlobalStream(RandStream('mt19937ar','Seed',random_seed)); 
 
 % Initialize the solution
 if ~initial_solution
