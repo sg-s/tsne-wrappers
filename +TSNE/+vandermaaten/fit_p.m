@@ -1,4 +1,4 @@
-function ydata = fit_p(P, labels, no_dims, random_seed)
+function [ydata, cost] = fit_p(P, labels, no_dims, random_seed)
 %fit_p Performs symmetric t-SNE on affinity matrix P
 %
 %   mappedX = fit_p(P, labels, no_dims)

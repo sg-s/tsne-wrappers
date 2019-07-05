@@ -1,4 +1,4 @@
-function R = fit(self)
+function [R, cost] = fit(self)
 
 % first check the hash
 H = self.hash;
@@ -10,6 +10,11 @@ end
 
 if exist([cache_dir filesep H '.cache'],'file') == 2 && self.use_cache
 	load([cache_dir filesep H '.cache'],'R','-mat');
+	try
+		load([cache_dir filesep H '.cache'],'cost','-mat');
+	catch
+		cost = NaN;
+	end
 	return
 end
 
@@ -20,17 +25,17 @@ if self.implementation == TSNE.implementation.internal
 elseif self.implementation == TSNE.implementation.vandermaaten
 	if isempty(self.raw_data) && ~isempty(self.distance_matrix)
 		% use distance matrix
-		R = TSNE.vandermaaten.fit_d(self.distance_matrix, [], self.num_dims, self.perplexity, self.random_seed);
+		[R, cost] = TSNE.vandermaaten.fit_d(self.distance_matrix, [], self.num_dims, self.perplexity, self.random_seed);
 	else
 		% use raw_data
-		R = TSNE.vandermaaten.fit(self.raw_data', [], self.num_dims, [], self.perplexity, self.random_seed);
+		[R, cost] = TSNE.vandermaaten.fit(self.raw_data', [], self.num_dims, [], self.perplexity, self.random_seed);
 
 	end
 elseif self.implementation == TSNE.implementation.multicore
 	R = TSNE.multicore.fit(self.raw_data)';
 elseif self.implementation == TSNE.implementation.berman
 
-	R = TSNE.berman.fit(self.raw_data','perplexity',self.perplexity);
+	[R, cost] = TSNE.berman.fit(self.raw_data','perplexity',self.perplexity);
 
 else
 	keyboard
@@ -38,7 +43,7 @@ end
 
 % cache if need be
 if self.use_cache
-	save([cache_dir filesep H '.cache'],'R','-nocompression','-v7.3')
+	save([cache_dir filesep H '.cache'],'R','cost','-nocompression','-v7.3')
 end
 
 
