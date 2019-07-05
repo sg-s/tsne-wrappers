@@ -10,9 +10,8 @@ end
 
 if exist([cache_dir filesep H '.cache'],'file') == 2 && self.use_cache
 	load([cache_dir filesep H '.cache'],'R','-mat');
-	try
-		load([cache_dir filesep H '.cache'],'cost','-mat');
-	catch
+	load([cache_dir filesep H '.cache'],'cost','-mat');
+	if ~exist('cost','var')
 		cost = NaN;
 	end
 	return
