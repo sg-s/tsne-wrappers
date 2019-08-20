@@ -1,4 +1,4 @@
-function ydata = fit(X, labels, no_dims, initial_dims, perplexity, random_seed)
+function ydata = fit(X, labels, no_dims, initial_dims, perplexity, random_seed, n_iter)
 %TSNE Performs symmetric t-SNE on dataset X
 %
 %   mappedX = tsne(X, labels, no_dims, initial_dims, perplexity)
@@ -32,6 +32,10 @@ end
 end
 if ~exist('perplexity', 'var') || isempty(perplexity)
     perplexity = 30;
+end
+
+if  isempty(n_iter)
+    n_iter = 300;
 end
 
 % First check whether we already have an initial solution
@@ -78,7 +82,7 @@ clear D
 
 % Run t-SNE
 if initial_solution
-    ydata = TSNE.vandermaaten.fit_p(P, labels, ydata, random_seed);
+    ydata = TSNE.vandermaaten.fit_p(P, labels, ydata, random_seed,n_iter);
 else
-    ydata = TSNE.vandermaaten.fit_p(P, labels, no_dims, random_seed);
+    ydata = TSNE.vandermaaten.fit_p(P, labels, no_dims, random_seed, n_iter);
 end

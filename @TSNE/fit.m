@@ -24,7 +24,7 @@ if self.implementation == TSNE.implementation.internal
 elseif self.implementation == TSNE.implementation.vandermaaten
 	if isempty(self.raw_data) && ~isempty(self.distance_matrix)
 		% use distance matrix
-		[R, cost] = TSNE.vandermaaten.fit_d(self.distance_matrix, [], self.num_dims, self.perplexity, self.random_seed);
+		[R, cost] = TSNE.vandermaaten.fit_d(self.distance_matrix, [], self.num_dims, self.perplexity, self.random_seed, self.n_iter);
 	else
 		% use raw_data
 		[R, cost] = TSNE.vandermaaten.fit(self.raw_data', [], self.num_dims, [], self.perplexity, self.random_seed);

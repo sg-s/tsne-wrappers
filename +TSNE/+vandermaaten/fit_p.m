@@ -1,4 +1,4 @@
-function [ydata, cost] = fit_p(P, labels, no_dims, random_seed)
+function [ydata, cost] = fit_p(P, labels, no_dims, random_seed, n_iter)
 %fit_p Performs symmetric t-SNE on affinity matrix P
 %
 %   mappedX = fit_p(P, labels, no_dims)
@@ -38,8 +38,7 @@ n = size(P, 1);                                     % number of instances
 momentum = 0.5;                                     % initial momentum
 final_momentum = 0.8;                               % value to which momentum is changed
 mom_switch_iter = 250;                              % iteration at which momentum is changed
-stop_lying_iter = 100;                              % iteration at which lying about P-values is stopped
-max_iter = 1000;                                    % maximum number of iterations
+stop_lying_iter = 100;                              % iteration at which lying about P-values is stopped                                   % maximum number of iterations
 epsilon = 500;                                      % initial learning rate
 min_gain = .01;                                     % minimum gain for delta-bar-delta
 
@@ -65,11 +64,11 @@ gains = ones(size(ydata));
 
 tic; 
 
-disp_iter = unique([ 1 2 3 round(linspace(5,max_iter,20))]);
+disp_iter = unique([ 1 2 3 round(linspace(5,n_iter,20))]);
 
 
 % Run the iterations
-for iter = 1:max_iter
+for iter = 1:n_iter
     
     % Compute joint probability that point i and j are neighbors
     sum_ydata = sum(ydata .^ 2, 2);
@@ -107,7 +106,7 @@ for iter = 1:max_iter
     % Print out progress
     if any(disp_iter == iter)
         t_elapsed = toc;
-        t_total = (t_elapsed/iter)*max_iter;
+        t_total = (t_elapsed/iter)*n_iter;
         t_rem = t_total - t_elapsed;
 
         
