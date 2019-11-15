@@ -18,6 +18,8 @@ properties
 
 	random_seed@double = 1984
 
+	InitialSolution
+
 end
 
 

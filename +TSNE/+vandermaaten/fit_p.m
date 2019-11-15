@@ -29,6 +29,7 @@ if numel(no_dims) > 1
     initial_solution = true;
     ydata = no_dims;
     no_dims = size(ydata, 2);
+    disp('fit_p using provided initial solution')
 else
     initial_solution = false;
 end

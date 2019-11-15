@@ -1,4 +1,4 @@
-function ydata = fit(X, labels, no_dims, initial_dims, perplexity, random_seed, n_iter)
+function [ydata,cost] = fit(X, labels, no_dims, initial_dims, perplexity, random_seed, n_iter)
 %TSNE Performs symmetric t-SNE on dataset X
 %
 %   mappedX = tsne(X, labels, no_dims, initial_dims, perplexity)
@@ -82,7 +82,7 @@ clear D
 
 % Run t-SNE
 if initial_solution
-    ydata = TSNE.vandermaaten.fit_p(P, labels, ydata, random_seed,n_iter);
+    [ydata,cost] = TSNE.vandermaaten.fit_p(P, labels, ydata, random_seed,n_iter);
 else
-    ydata = TSNE.vandermaaten.fit_p(P, labels, no_dims, random_seed, n_iter);
+    [ydata,cost] = TSNE.vandermaaten.fit_p(P, labels, no_dims, random_seed, n_iter);
 end
