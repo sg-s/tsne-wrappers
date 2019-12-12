@@ -1,25 +1,48 @@
-classdef TSNE < Hashable
+classdef TSNE < Hashable & Constructable 
 
 
 properties
 
-	implementation@TSNE.implementation = TSNE.implementation.internal
-	distance_matrix@double
-	raw_data@double
-	num_dims@double = 2
+	implementation@TSNE.implementation = TSNE.implementation.vandermaaten
+	DistanceMatrix@double
+	RawData@double
+	NumDims@double = 2
 	perplexity@double = 30
 
 	% cache embeddings to immediately recall it next time?
-	use_cache@logical = true
+	UseCache@logical = true
 
 	n_cores@double = corelib.numcores;
 
-	n_iter@double = 1e3;
+	NIter@double = 1e3;
 
-	random_seed@double = 1984
+	RandomSeed@double = 1984
 
 	InitialSolution
 
+	% degree of freedom parameter, controls substructure within a cluster
+	% see Koback, Linderman, Steinerberger, Kluger & Berens for
+	% an explanation of what this parameter is and why it's useful
+	Alpha@double = 1;
+
+	% tolerance in determining nearest neighbours
+	Tolerance@double = 1e-5;
+
+	InitialMomentum = .5;
+	FinalMomentum = .8;
+
+	 % iteration at which lying about P-values is stopped  
+	StopLyingIter = 100;
+
+	 % initial learning rate
+	Epsilon = 500;
+
+	% minimum gain for delta-bar-delta
+	MinGain = .01; 
+
+	% iteration at which momentum is changed
+	MomSwitchIter = 250;                              
+             
 end
 
 
@@ -28,12 +51,16 @@ methods
 
 
 
+	function self = TSNE(varargin)
+		self = self@Constructable(varargin{:});   
+	end
 
 
-	function self = set.raw_data(self, value)
+
+	function self = set.RawData(self, value)
 
 		% should be a matrix
-		assert(ismatrix(value),'raw_data should be a matrix')
+		assert(ismatrix(value),'RawData should be a matrix')
 
 		% rotate correctly
 		sz = size(value);
@@ -46,7 +73,7 @@ methods
 
 		assert(~any(isinf(sum(value))),'Inf found in raw data. Use TSNE.clean() to clean it before setting')
 
-		self.raw_data = value;
+		self.RawData = value;
 
 	end
 

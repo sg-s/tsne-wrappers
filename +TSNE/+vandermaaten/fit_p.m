@@ -1,88 +1,91 @@
-function [ydata, cost] = fit_p(P, labels, no_dims, random_seed, n_iter)
+function [ydata, cost] = fit_p(P, self)
 %fit_p Performs symmetric t-SNE on affinity matrix P
 %
-%   mappedX = fit_p(P, labels, no_dims)
+%   mappedX = fit_p(P, labels, self.NumDims)
 %
 % The function performs symmetric t-SNE on pairwise similarity matrix P 
-% to create a low-dimensional map of no_dims dimensions (default = 2).
+% to create a low-dimensional map of self.NumDims dimensions (default = 2).
 % The matrix P is assumed to be symmetric, sum up to 1, and have zeros
 % on the diagonal.
-% The labels of the data are not used by t-SNE itself, however, they 
-% are used to color intermediate plots. Please provide an empty labels
-% matrix [] if you don't want to plot results during the optimization.
-% The low-dimensional data representation is returned in mappedX.
 %
 %
 % (C) Laurens van der Maaten, 2010
 % University of California, San Diego
 
 
-if ~exist('labels', 'var')
-    labels = [];
-end
-if ~exist('no_dims', 'var') || isempty(no_dims)
-    no_dims = 2;
-end
 
-% First check whether we already have an initial solution
-if numel(no_dims) > 1
-    initial_solution = true;
-    ydata = no_dims;
-    no_dims = size(ydata, 2);
-    disp('fit_p using provided initial solution')
-else
-    initial_solution = false;
-end
+% unpack
+Alpha = self.Alpha;
+min_gain = self.MinGain;
+momentum = self.InitialMomentum;
+epsilon = self.Epsilon;
 
 % Initialize some variables
 n = size(P, 1);                                     % number of instances
-momentum = 0.5;                                     % initial momentum
-final_momentum = 0.8;                               % value to which momentum is changed
-mom_switch_iter = 250;                              % iteration at which momentum is changed
-stop_lying_iter = 100;                              % iteration at which lying about P-values is stopped                                   % maximum number of iterations
-epsilon = 500;                                      % initial learning rate
-min_gain = .01;                                     % minimum gain for delta-bar-delta
+                 
+                                    
 
 % Make sure P-vals are set properly
 assert(~any(isnan(P(:))),'P matrix contains NaNs')
+
 P(1:n + 1:end) = 0;                                 % set diagonal to zero
 P = 0.5 * (P + P');                                 % symmetrize P-values
 P = max(P ./ sum(P(:)), realmin);                   % make sure P-values sum to one
 const = sum(P(:) .* log(P(:)));                     % constant in KL divergence
-if ~initial_solution
+
+
+if isempty(self.InitialSolution)
     P = P * 4;                                      % lie about the P-vals to find better local minima
 end
 
 % use frozen random numbers
-RandStream.setGlobalStream(RandStream('mt19937ar','Seed',random_seed)); 
+RandStream.setGlobalStream(RandStream('mt19937ar','Seed',self.RandomSeed)); 
 
 % Initialize the solution
-if ~initial_solution
-    ydata = .0001 * randn(n, no_dims);
+if isempty(self.InitialSolution)
+    ydata = .0001 * randn(n, self.NumDims);
 end
 y_incs  = zeros(size(ydata));
 gains = ones(size(ydata));
 
 tic; 
 
-disp_iter = unique([ 1 2 3 round(linspace(5,n_iter,20))]);
+disp_iter = unique([ 1 2 3 round(linspace(5,self.NIter,20))]);
 
 
 % Run the iterations
-for iter = 1:n_iter
+for iter = 1:self.NIter
     
     % Compute joint probability that point i and j are neighbors
-    sum_ydata = sum(ydata .^ 2, 2);
-    num = 1 ./ (1 + bsxfun(@plus, sum_ydata, bsxfun(@plus, sum_ydata', -2 * (ydata * ydata')))); % Student-t distribution
 
-     % set diagonal to zero
-    num(1:n+1:end) = 0;                                                
+    % This commented out code is what van der Maaten wrote. Not clear why
+    % this is written in so convoluted a fashion
+    % tic
+    % sum_ydata = sum(ydata .^ 2, 2);
+    % num = 1 ./ (1 + bsxfun(@plus, sum_ydata, bsxfun(@plus, sum_ydata', -2 * (ydata * ydata')))); % Student-t distribution
+    % % set diagonal to zero
+    % num(1:n+1:end) = 0;  
+    % toc
+
+
+
+    d = pdist(ydata);
+    if Alpha == 1
+        % normal Cauchy distribution (Student's t-distribution with Alpha = 1)
+        num = squareform(1./(1+d.^2));
+    else
+        % generalized t-Distribution
+        num = squareform((1 + ((d.^2)/Alpha)).^(-Alpha));
+    end
+
+
+                                                   
 
      % normalize to get probabilities
     Q = max(num ./ sum(num(:)), realmin);                              
     
     % Compute the gradients (faster implementation)
-    L = (P - Q) .* num;
+    L = (P - Q) .* (num.^(1/Alpha));
     y_grads = 4 * (diag(sum(L, 1)) - L) * ydata;
         
     % Update the solution
@@ -94,10 +97,10 @@ for iter = 1:n_iter
     ydata = bsxfun(@minus, ydata, mean(ydata, 1));
     
     % Update the momentum if necessary
-    if iter == mom_switch_iter
-        momentum = final_momentum;
+    if iter == self.MomSwitchIter
+        momentum = self.FinalMomentum;
     end
-    if iter == stop_lying_iter && ~initial_solution
+    if iter == self.StopLyingIter && isempty(self.InitialSolution)
         P = P ./ 4;
     end
 
@@ -107,25 +110,10 @@ for iter = 1:n_iter
     % Print out progress
     if any(disp_iter == iter)
         t_elapsed = toc;
-        t_total = (t_elapsed/iter)*n_iter;
+        t_total = (t_elapsed/iter)*self.NIter;
         t_rem = t_total - t_elapsed;
-
-        
 
         disp(['Iteration ' num2str(iter) ': error is ' num2str(cost) ' time remaining: ' num2str(t_rem)]);
     end
     
-    % Display scatter plot (maximally first three dimensions)
-    if ~rem(iter, 10) && ~isempty(labels)
-        if no_dims == 1
-            scatter(ydata, ydata, 9, labels, 'filled');
-        elseif no_dims == 2
-            scatter(ydata(:,1), ydata(:,2), 9, labels, 'filled');
-        else
-            scatter3(ydata(:,1), ydata(:,2), ydata(:,3), 40, labels, 'filled');
-        end
-        axis tight
-        axis off
-        drawnow
-    end
 end

@@ -1,4 +1,4 @@
-function [ydata,cost] = fit(X, labels, no_dims, initial_dims, perplexity, random_seed, n_iter)
+function [ydata,cost] = fit(X, params)
 %TSNE Performs symmetric t-SNE on dataset X
 %
 %   mappedX = tsne(X, labels, no_dims, initial_dims, perplexity)
@@ -20,33 +20,10 @@ function [ydata,cost] = fit(X, labels, no_dims, initial_dims, perplexity, random
 % (C) Laurens van der Maaten, 2010
 % University of California, San Diego
 
+disp(mfilename)
 
-if ~exist('labels', 'var')
-    labels = [];
-end
-if ~exist('no_dims', 'var') || isempty(no_dims)
-    no_dims = 2;
-end
- if ~exist('initial_dims', 'var') || isempty(initial_dims)
-    initial_dims = min(50, size(X, 2));
-end
-if ~exist('perplexity', 'var') || isempty(perplexity)
-    perplexity = 30;
-end
 
-if  isempty(n_iter)
-    n_iter = 300;
-end
-
-% First check whether we already have an initial solution
-if numel(no_dims) > 1
-    initial_solution = true;
-    ydata = no_dims;
-    no_dims = size(ydata, 2);
-    perplexity = initial_dims;
-else
-    initial_solution = false;
-end
+initial_dims = min(50, size(X, 2));
 
 % Normalize input data
 X = X - min(X(:));
@@ -54,7 +31,7 @@ X = X / max(X(:));
 X = bsxfun(@minus, X, mean(X, 1));
 
 % Perform preprocessing using PCA
-if ~initial_solution
+if isempty(params.InitialSolution)
     disp('Preprocessing data using PCA...');
     if size(X, 2) < size(X, 1)
         C = X' * X;
@@ -77,12 +54,9 @@ sum_X = sum(X .^ 2, 2);
 D = bsxfun(@plus, sum_X, bsxfun(@plus, sum_X', -2 * (X * X')));
 
 % Compute joint probabilities
-P = TSNE.vandermaaten.d2p(D, perplexity, 1e-5);                                           % compute affinities using fixed perplexity
+% compute affinities using fixed perplexity
+P = TSNE.vandermaaten.d2p(D, params.perplexity, 1e-5);                                           
 clear D
 
 % Run t-SNE
-if initial_solution
-    [ydata,cost] = TSNE.vandermaaten.fit_p(P, labels, ydata, random_seed,n_iter);
-else
-    [ydata,cost] = TSNE.vandermaaten.fit_p(P, labels, no_dims, random_seed, n_iter);
-end
+[ydata,cost] = TSNE.vandermaaten.fit_p(P, params);

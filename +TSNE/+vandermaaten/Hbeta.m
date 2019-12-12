@@ -7,5 +7,4 @@ function [H, P] = Hbeta(D, beta)
 P = exp(-D * beta);
 sumP = sum(P);
 H = log(sumP) + beta * sum(D .* P) / sumP;
-% why not: H = exp(-sum(P(P > 1e-5) .* log(P(P > 1e-5)))); ???
 P = P / sumP;

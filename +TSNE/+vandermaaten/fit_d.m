@@ -1,4 +1,5 @@
-function [ydata, cost] = fit_d(D, labels, no_dims, perplexity, random_seed, n_iter)
+
+function [ydata, cost] = fit_d(D, params)
 %fit_d Performs symmetric t-SNE on the pairwise Euclidean distance matrix D
 %
 %   mappedX = fit_d(D, labels, no_dims, perplexity)
@@ -20,23 +21,14 @@ function [ydata, cost] = fit_d(D, labels, no_dims, perplexity, random_seed, n_it
 % University of California, San Diego
 
 
-% First check whether we already have an initial solution
-if numel(no_dims) > 1
-    initial_solution = true;
-    ydata = no_dims;
-    no_dims = size(ydata, 2);
-    disp('fit_d using provided initial solution')
-else
-    initial_solution = false;
-end
 
-% Compute joint probabilities
-D = D / max(D(:));           % normalize distances
-P = TSNE.vandermaaten.d2p(D .^ 2, perplexity, 1e-5);      % compute affinities using fixed perplexity
+% normalize distances
+D = D / max(D(:));  
+
+% Compute joint probabilities     
+% compute affinities using fixed perplexity    
+P = TSNE.vandermaaten.d2p(D .^ 2, params.perplexity, params.Tolerance);      
 
 % Run t-SNE
-if initial_solution
-    [ydata, cost] = TSNE.vandermaaten.fit_p(P, labels, ydata, random_seed, n_iter);
-else
-    [ydata, cost] = TSNE.vandermaaten.fit_p(P, labels, no_dims, random_seed, n_iter);
-end
+[ydata, cost] = TSNE.vandermaaten.fit_p(P, params);
+

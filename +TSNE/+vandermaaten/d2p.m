@@ -16,6 +16,8 @@ function [P, beta] = d2p(D, perplexity, tol)
 % Maastricht University
 
     
+disp(mfilename)
+
 if ~exist('perplexity', 'var') || isempty(perplexity)
     perplexity = 15;
 end

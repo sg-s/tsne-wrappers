@@ -15,6 +15,7 @@ function [P, beta] = x2p(X, u, tol)
 % (C) Laurens van der Maaten, 2008
 % Maastricht University
 
+disp(mfilename)
     
     if ~exist('u', 'var') || isempty(u)
         u = 15;
@@ -48,7 +49,7 @@ function [P, beta] = x2p(X, u, tol)
         
         % Compute the Gaussian kernel and entropy for the current precision
         Di = D(i, [1:i-1 i+1:end]);
-        [H, thisP] = Hbeta(Di, beta(i));
+        [H, thisP] = TSNE.vandermaaten.Hbeta(Di, beta(i));
         
         % Evaluate whether the perplexity is within tolerance
         Hdiff = H - logU;
@@ -73,7 +74,7 @@ function [P, beta] = x2p(X, u, tol)
             end
             
             % Recompute the values
-            [H, thisP] = Hbeta(Di, beta(i));
+            [H, thisP] = TSNE.vandermaaten.Hbeta(Di, beta(i));
             Hdiff = H - logU;
             tries = tries + 1;
         end
@@ -86,15 +87,3 @@ function [P, beta] = x2p(X, u, tol)
     disp(['Maximum value of sigma: ' num2str(max(sqrt(1 ./ beta)))]);
 end
     
-
-
-% Function that computes the Gaussian kernel values given a vector of
-% squared Euclidean distances, and the precision of the Gaussian kernel.
-% The function also computes the perplexity of the distribution.
-function [H, P] = Hbeta(D, beta)
-    P = exp(-D * beta);
-    sumP = sum(P);
-    H = log(sumP) + beta * sum(D .* P) / sumP;
-    P = P / sumP;
-end
-

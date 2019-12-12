@@ -1,5 +1,14 @@
 % plots the t-sne embedding in 2D
-function plot(self, ax, labels)
+function plot(self, ax, labels, Colors)
+
+
+
+
+if exist('labels','var') && ~exist('Colors','var')
+	unique_labels = unique(labels);
+	n_labels = length(unique_labels);
+	Colors = parula(n_labels);
+end
 
 R = self.fit();
 
@@ -12,12 +21,12 @@ end
 
 
 if exist('labels','var')
+	
 	unique_labels = unique(labels);
 	n_labels = length(unique_labels);
-	c = parula(n_labels);
 
 	for i = 1:n_labels
-		plot(ax,R(labels==unique_labels(i),1),R(labels==unique_labels(i),2),'.','Color',c(i,:))
+		plot(ax,R(labels==unique_labels(i),1),R(labels==unique_labels(i),2),'.','Color',Colors(i,:))
 	end
 
 
