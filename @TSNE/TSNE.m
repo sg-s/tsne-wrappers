@@ -41,10 +41,7 @@ properties
 	MinGain = .01; 
 
 	% iteration at which momentum is changed
-	MomSwitchIter = 250;    
-
-
-	UseParallel@logical = true                          
+	MomSwitchIter = 250;                     
              
 end
 

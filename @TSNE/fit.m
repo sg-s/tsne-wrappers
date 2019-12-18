@@ -17,9 +17,12 @@ if self.UseCache
 		if ~exist('cost','var')
 			cost = NaN;
 		end
+		disp('Using cached solution...')
 		return
 	end
 end
+
+disp('Cache miss')
 
 
 

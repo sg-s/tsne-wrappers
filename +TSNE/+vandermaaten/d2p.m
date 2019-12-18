@@ -1,4 +1,4 @@
-function [P, beta] = d2p(D, perplexity, tol, UseParallel)
+function [P, beta] = d2p(D, perplexity, tol)
 % D2P Identifies appropriate sigmas to get kk NNs up to some tolerance 
 %
 %   [P, beta] = d2p(D, kk, tol)
@@ -34,7 +34,7 @@ logU = log(perplexity);              % log of perplexity (= entropy)
 
 % Run over all datapoints
 
-if isempty(gcp('nocreate')) || ~UseParallel
+if isempty(gcp('nocreate')) 
     % no parallel pool
     for i = 1:n
         [P_off_diag(:,i), beta(i)] = TSNE.vandermaaten.d2p_parallel(logU, D(i,:), tol, i);
