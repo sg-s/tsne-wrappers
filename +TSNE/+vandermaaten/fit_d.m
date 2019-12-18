@@ -27,7 +27,7 @@ D = D / max(D(:));
 
 % Compute joint probabilities     
 % compute affinities using fixed perplexity    
-P = TSNE.vandermaaten.d2p(D .^ 2, params.perplexity, params.Tolerance);      
+P = TSNE.vandermaaten.d2p(D .^ 2, params.perplexity, params.Tolerance, params.UseParallel);      
 
 % Run t-SNE
 [ydata, cost] = TSNE.vandermaaten.fit_p(P, params);
