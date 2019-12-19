@@ -1,4 +1,4 @@
-function [ydata, cost] = fit_p(P, self)
+function [ydata, cost] = fit_p(P, self, Hash, start_iter)
 %fit_p Performs symmetric t-SNE on affinity matrix P
 %
 %   mappedX = fit_p(P, labels, self.NumDims)
@@ -12,6 +12,9 @@ function [ydata, cost] = fit_p(P, self)
 % (C) Laurens van der Maaten, 2010
 % University of California, San Diego
 
+
+cache_dir = fileparts(fileparts(which('TSNE.implementation')));
+cache_dir = [cache_dir filesep '.cache'];
 
 
 % unpack
@@ -44,17 +47,20 @@ RandStream.setGlobalStream(RandStream('mt19937ar','Seed',self.RandomSeed));
 % Initialize the solution
 if isempty(self.InitialSolution)
     ydata = .0001 * randn(n, self.NumDims);
+else
+    ydata = self.InitialSolution;
 end
 y_incs  = zeros(size(ydata));
 gains = ones(size(ydata));
 
 tic; 
 
-disp_iter = unique([ 1 2 3 round(linspace(5,self.NIter,20))]);
+disp_iter = unique([start_iter start_iter+1 start_iter +2 round(linspace(5,self.NIter,20))]);
 
 
 % Run the iterations
-for iter = 1:self.NIter
+
+for iter = start_iter:self.NIter
     
     % Compute joint probability that point i and j are neighbors
 
@@ -116,4 +122,12 @@ for iter = 1:self.NIter
         disp(['Iteration ' num2str(iter) ': error is ' num2str(cost) ' time remaining: ' num2str(t_rem)]);
     end
     
+
+    % save progress
+    if self.UseCache
+        R = ydata;
+        save([cache_dir filesep Hash '.cache'],'R','cost','iter','-nocompression','-v7.3')
+    end
+
+
 end

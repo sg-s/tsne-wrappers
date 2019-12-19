@@ -2,9 +2,18 @@
 % 
 function [R, cost] = fit(self)
 
+
+start_iter = 1;
+
 % first check the hash
 if self.UseCache
+
+	% don't hash NIter
+	NIter = self.NIter;
+	self.NIter = 1;
 	H = self.hash;
+	self.NIter = NIter;
+	
 	cache_dir = fileparts(fileparts(which('TSNE.implementation')));
 	cache_dir = [cache_dir filesep '.cache'];
 	if ~isdir(cache_dir)
@@ -12,13 +21,20 @@ if self.UseCache
 	end
 
 	if exist([cache_dir filesep H '.cache'],'file') == 2 && self.UseCache
-		load([cache_dir filesep H '.cache'],'R','-mat');
-		load([cache_dir filesep H '.cache'],'cost','-mat');
-		if ~exist('cost','var')
-			cost = NaN;
-		end
 		disp('Using cached solution...')
-		return
+
+		load([cache_dir filesep H '.cache'],'R','cost','iter','-mat');
+
+		if iter < self.NIter
+			% need to keep going
+			self.InitialSolution = R;
+			start_iter = iter;
+		else
+			self.NIter = iter;
+			return
+		end
+
+
 	end
 end
 
@@ -32,12 +48,8 @@ if self.implementation == TSNE.implementation.internal
 elseif self.implementation == TSNE.implementation.vandermaaten
 	if isempty(self.RawData) && ~isempty(self.DistanceMatrix)
 		% use distance matrix
+		[R, cost] = TSNE.vandermaaten.fit_d(self.DistanceMatrix,self.getParameters, H, start_iter);
 
-		if isempty(self.InitialSolution)
-			[R, cost] = TSNE.vandermaaten.fit_d(self.DistanceMatrix,self.getParameters);
-		else
-			[R, cost] = TSNE.vandermaaten.fit_d(self.DistanceMatrix,self.getParameters);
-		end
 	else
 		% use RawData
 		[R, cost] = TSNE.vandermaaten.fit(self.RawData', self.getParameters);
@@ -55,7 +67,8 @@ end
 
 % cache if need be
 if self.UseCache
-	save([cache_dir filesep H '.cache'],'R','cost','-nocompression','-v7.3')
+	iter = self.NIter;
+	save([cache_dir filesep H '.cache'],'R','cost','iter','-nocompression','-v7.3')
 end
 
 

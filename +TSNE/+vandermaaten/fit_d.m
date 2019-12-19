@@ -1,5 +1,5 @@
 
-function [ydata, cost] = fit_d(D, params)
+function [ydata, cost] = fit_d(D, params, Hash, start_iter)
 %fit_d Performs symmetric t-SNE on the pairwise Euclidean distance matrix D
 %
 %   mappedX = fit_d(D, labels, no_dims, perplexity)
@@ -30,5 +30,5 @@ D = D / max(D(:));
 P = TSNE.vandermaaten.d2p(D .^ 2, params.perplexity, params.Tolerance);      
 
 % Run t-SNE
-[ydata, cost] = TSNE.vandermaaten.fit_p(P, params);
+[ydata, cost] = TSNE.vandermaaten.fit_p(P, params, Hash, start_iter);
 
