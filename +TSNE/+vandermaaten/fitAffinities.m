@@ -1,17 +1,4 @@
-function [ydata, cost] = fit_p(P, self, Hash, start_iter)
-%fit_p Performs symmetric t-SNE on affinity matrix P
-%
-%   mappedX = fit_p(P, labels, self.NumDims)
-%
-% The function performs symmetric t-SNE on pairwise similarity matrix P 
-% to create a low-dimensional map of self.NumDims dimensions (default = 2).
-% The matrix P is assumed to be symmetric, sum up to 1, and have zeros
-% on the diagonal.
-%
-%
-% (C) Laurens van der Maaten, 2010
-% University of California, San Diego
-
+function [ydata, cost] = fitAffinities(P, const, self, start_iter, Hash)
 
 cache_dir = fileparts(fileparts(which('TSNE.implementation')));
 cache_dir = [cache_dir filesep '.cache'];
@@ -27,15 +14,6 @@ epsilon = self.Epsilon;
 n = size(P, 1);                                     % number of instances
                  
                                     
-
-% Make sure P-vals are set properly
-assert(~any(isnan(P(:))),'P matrix contains NaNs')
-
-P(1:n + 1:end) = 0;                                 % set diagonal to zero
-P = 0.5 * (P + P');                                 % symmetrize P-values
-P = max(P ./ sum(P(:)), realmin);                   % make sure P-values sum to one
-const = sum(P(:) .* log(P(:)));                     % constant in KL divergence
-
 
 % save P so that we can use it with FIt-SNE
 % save('P.mat','P')

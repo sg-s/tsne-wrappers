@@ -1,21 +1,5 @@
-function [P, beta] = d2p(D, perplexity, tol)
-% D2P Identifies appropriate sigmas to get kk NNs up to some tolerance 
-%
-%   [P, beta] = d2p(D, kk, tol)
-% 
-% Identifies the required precision (= 1 / variance^2) to obtain a Gaussian
-% kernel with a certain uncertainty for every datapoint. The desired
-% uncertainty can be specified through the perplexity u (default = 15). The
-% desired perplexity is obtained up to some tolerance that can be specified
-% by tol (default = 1e-4).
-% The function returns the final Gaussian kernel in P, as well as the 
-% employed precisions per instance in beta.
-%
-%
-% (C) Laurens van der Maaten, 2008
-% Maastricht University
+function [P, const] = Distances2Affinities(D, perplexity, tol)
 
-    
 disp(mfilename)
 
 if ~exist('perplexity', 'var') || isempty(perplexity)
@@ -58,6 +42,12 @@ end
 disp(['Mean value of sigma: ' num2str(mean(sqrt(1 ./ beta)))]);
 disp(['Minimum value of sigma: ' num2str(min(sqrt(1 ./ beta)))]);
 disp(['Maximum value of sigma: ' num2str(max(sqrt(1 ./ beta)))]);
+                    
 
+% Make sure P-vals are set properly
+assert(~any(isnan(P(:))),'P matrix contains NaNs')
 
-
+P(1:n + 1:end) = 0;                                 % set diagonal to zero
+P = 0.5 * (P + P');                                 % symmetrize P-values
+P = max(P ./ sum(P(:)), realmin);                   % make sure P-values sum to one
+const = sum(P(:) .* log(P(:)));      

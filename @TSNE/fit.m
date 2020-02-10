@@ -52,7 +52,9 @@ elseif self.implementation == TSNE.implementation.vandermaaten
 
 	else
 		% use RawData
-		[R, cost] = TSNE.vandermaaten.fit(self.RawData', self.getParameters);
+		D = TSNE.vandermaaten.RawData2Distances(self.RawData', self.getParameters);
+		[P, const] = TSNE.vandermaaten.Distances2Affinities(D, self.perplexity, 1e-5);
+		[R, cost] = TSNE.vandermaaten.fitAffinities(P, const, self.getParameters, start_iter, H);
 
 	end
 elseif self.implementation == TSNE.implementation.multicore
@@ -60,6 +62,36 @@ elseif self.implementation == TSNE.implementation.multicore
 elseif self.implementation == TSNE.implementation.berman
 
 	[R, cost] = TSNE.berman.fit(self.RawData','perplexity',self.perplexity);
+
+
+elseif self.implementation == TSNE.implementation.fitsne
+
+	% convert options
+	clear opts
+	opts.perplexity = self.perplexity;
+	opts.max_iter = self.NIter;
+
+	if isempty(self.RawData) && ~isempty(self.DistanceMatrix)
+		
+		% convert to affinities
+		[P, const] = TSNE.vandermaaten.Distances2Affinities(self.DistanceMatrix, self.perplexity, 1e-5);
+
+		% write affinities
+		TSNE.fitsne.write_P(P);
+
+		% create DummyData
+		DummyData = zeros(size(P,1),2);
+
+		% run Fitsne
+		opts.load_affinities = 'load';
+		[R, cost] = fast_tsne(DummyData,opts);
+
+
+
+	else
+		% use raw data
+		[R, cost] = fast_tsne(self.RawData',opts);
+	end
 
 else
 	keyboard
