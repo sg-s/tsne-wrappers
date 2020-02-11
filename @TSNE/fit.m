@@ -70,6 +70,18 @@ elseif self.implementation == TSNE.implementation.fitsne
 	clear opts
 	opts.perplexity = self.perplexity;
 	opts.max_iter = self.NIter;
+	opts.df = self.Alpha;
+	opts.no_dims = self.NumDims;
+	opts.initialization = self.InitialSolution;
+	opts.learning_rate = self.Epsilon;
+	opts.momentum = self.InitialMomentum;
+	opts.final_momentum = self.FinalMomentum;
+	opts.nthreads = self.n_cores;
+	opts.rand_seed = self.RandomSeed;
+
+	if exist('start_iter','var')
+		opts.max_iter = self.NIter - start_iter;
+	end
 
 	if isempty(self.RawData) && ~isempty(self.DistanceMatrix)
 		
